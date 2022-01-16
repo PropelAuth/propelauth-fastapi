@@ -1,0 +1,34 @@
+from datetime import timezone, datetime, timedelta
+from uuid import uuid4
+
+import jwt
+
+from tests.conftest import BASE_AUTH_URL
+
+
+def create_access_token(user, private_key_pem, issuer=BASE_AUTH_URL, expires_in=timedelta(minutes=30)):
+    payload = user.copy()
+    now = datetime.now(tz=timezone.utc)
+    payload["iat"] = now
+    payload["exp"] = now + expires_in
+    payload["iss"] = issuer
+    return jwt.encode(payload, private_key_pem, algorithm="RS256")
+
+
+def random_user_id():
+    return str(uuid4())
+
+
+def random_org(user_role_str):
+    return {
+        "org_id": str(uuid4()),
+        "org_name": str(uuid4()),
+        "user_role": user_role_str
+    }
+
+
+def orgs_to_org_id_map(orgs):
+    org_id_to_org_member_info = {}
+    for org in orgs:
+        org_id_to_org_member_info[org["org_id"]] = org
+    return org_id_to_org_member_info

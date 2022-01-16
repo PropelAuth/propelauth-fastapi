@@ -1,0 +1,4 @@
+fastapi
+propelauth-py
+pytest
+requests-mock
