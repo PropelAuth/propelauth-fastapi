@@ -70,7 +70,9 @@ Auth = namedtuple("Auth", [
     "fetch_user_metadata_by_user_id", "fetch_user_metadata_by_email", "fetch_user_metadata_by_username",
     "fetch_batch_user_metadata_by_user_ids",
     "fetch_batch_user_metadata_by_emails",
-    "fetch_batch_user_metadata_by_usernames"
+    "fetch_batch_user_metadata_by_usernames",
+    "fetch_org", "fetch_org_by_query", "fetch_users_by_query", "fetch_users_in_org",
+    "create_user"
 ])
 
 
@@ -89,4 +91,9 @@ def init_auth(auth_url: str, api_key: str, token_verification_metadata: TokenVer
         fetch_batch_user_metadata_by_user_ids=auth.fetch_batch_user_metadata_by_user_ids,
         fetch_batch_user_metadata_by_emails=auth.fetch_batch_user_metadata_by_emails,
         fetch_batch_user_metadata_by_usernames=auth.fetch_batch_user_metadata_by_usernames,
+        fetch_org=auth.fetch_org,
+        fetch_org_by_query=auth.fetch_org_by_query,
+        fetch_users_by_query=auth.fetch_users_by_query,
+        fetch_users_in_org=auth.fetch_users_in_org,
+        create_user=auth.create_user,
     )
