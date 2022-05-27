@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from propelauth_py import TokenVerificationMetadata, init_base_auth, Auth
 from propelauth_py.errors import ForbiddenException, UnauthorizedException, UnexpectedException
-from propelauth_py.user import User, UserRole
+from propelauth_py.user import User
 
 _security = HTTPBearer(auto_error=False)
 
@@ -48,7 +48,7 @@ class OptionalUserDependency:
 
 
 def _require_org_member_wrapper(auth: Auth, debug_mode: bool):
-    def require_org_member(user: User, required_org_id: str, minimum_required_role: UserRole = None):
+    def require_org_member(user: User, required_org_id: str, minimum_required_role: str = None):
         try:
             return auth.validate_org_access_and_get_org(user, required_org_id, minimum_required_role)
         except ForbiddenException as e:

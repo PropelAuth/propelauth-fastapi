@@ -47,7 +47,8 @@ def rsa_keys():
 @pytest.fixture(scope='function')
 def auth(rsa_keys):
     return mock_api_and_init_auth(BASE_AUTH_URL, 200, {
-        "verifier_key_pem": rsa_keys.public_pem
+        "verifier_key_pem": rsa_keys.public_pem,
+        "roles": [{"name": "Owner"}, {"name": "Admin"}, {"name": "Member"}]
     })
 
 
