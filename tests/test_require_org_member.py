@@ -96,6 +96,39 @@ def test_require_org_member_with_auth_with_permission(app, auth, client, rsa_key
     assert response.text == "ok"
 
 
+def test_require_org_member_with_auth_with_required_permissions(app, auth, client, rsa_keys):
+    user_id = random_user_id()
+    org = random_org("Admin")
+    org_id_to_org_member_info = orgs_to_org_id_map([org])
+
+    create_route_expecting_user_and_org(app, auth, user_id, org, "Admin", ["admin_perm", "member_perm"])
+
+    access_token = create_access_token({
+        "user_id": user_id,
+        "org_id_to_org_member_info": org_id_to_org_member_info
+    }, rsa_keys.private_pem)
+
+    response = client.get(route_for(org["org_id"]), headers={"Authorization": "Bearer " + access_token})
+    assert response.status_code == 200
+    assert response.text == "ok"
+
+
+def test_require_org_member_with_auth_without_required_permissions(app, auth, client, rsa_keys):
+    user_id = random_user_id()
+    org = random_org("Admin")
+    org_id_to_org_member_info = orgs_to_org_id_map([org])
+
+    create_route_expecting_user_and_org(app, auth, user_id, org, "Admin", ["owner_perm", "admin_perm", "member_perm"])
+
+    access_token = create_access_token({
+        "user_id": user_id,
+        "org_id_to_org_member_info": org_id_to_org_member_info
+    }, rsa_keys.private_pem)
+
+    response = client.get(route_for(org["org_id"]), headers={"Authorization": "Bearer " + access_token})
+    assert response.status_code == 403
+
+
 def test_require_org_member_with_bad_header(app, auth, client, rsa_keys):
     create_route_expecting_user_and_org(app, auth, None, None, None)
 
@@ -152,10 +185,10 @@ def test_require_user_with_bad_issuer(app, auth, client, rsa_keys):
     assert response.status_code == 401
 
 
-def create_route_expecting_user_and_org(app, auth, user_id, org, user_role):
+def create_route_expecting_user_and_org(app, auth, user_id, org, user_role, required_permissions = None):
     @app.get(ROUTE_NAME)
     async def route(org_id, current_user=Depends(auth.require_user)):
-        current_org = auth.require_org_member(current_user, org_id, user_role)
+        current_org = auth.require_org_member(current_user, org_id, user_role, required_permissions)
         assert current_user.user_id == user_id
         assert current_org.org_id == org["org_id"]
         assert current_org.org_name == org["org_name"]

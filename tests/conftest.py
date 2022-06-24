@@ -7,6 +7,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.rsa import generate_private_key
 from fastapi import FastAPI, Depends
 from fastapi.testclient import TestClient
+from propelauth_py import RoleMetadata
 from starlette.responses import PlainTextResponse
 
 from propelauth_fastapi import init_auth, User
@@ -48,7 +49,6 @@ def rsa_keys():
 def auth(rsa_keys):
     return mock_api_and_init_auth(BASE_AUTH_URL, 200, {
         "verifier_key_pem": rsa_keys.public_pem,
-        "roles": [{"name": "Owner"}, {"name": "Admin"}, {"name": "Member"}]
     })
 
 
@@ -84,4 +84,10 @@ def mock_api_and_init_auth(auth_url, status_code, json):
               request_headers={'Authorization': 'Bearer ' + api_key},
               json=json,
               status_code=status_code)
-        return init_auth(auth_url, api_key)
+        roles = [
+            RoleMetadata(name="Owner", permissions=["owner_perm", "admin_perm", "member_perm"], parent=None),
+            RoleMetadata(name="Admin", permissions=["admin_perm", "member_perm"], parent="Owner"),
+            RoleMetadata(name="Member", permissions=["member_perm"], parent="Admin"),
+            RoleMetadata(name="OtherMember", permissions=[], parent="Admin"),
+        ]
+        return init_auth(auth_url, api_key, roles)

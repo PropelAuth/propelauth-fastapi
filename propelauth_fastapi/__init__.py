@@ -1,8 +1,9 @@
 from collections import namedtuple
+from typing import List
 
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from propelauth_py import TokenVerificationMetadata, init_base_auth, Auth
+from propelauth_py import TokenVerificationMetadata, init_base_auth, Auth, RoleMetadata
 from propelauth_py.errors import ForbiddenException, UnauthorizedException, UnexpectedException
 from propelauth_py.user import User
 
@@ -48,9 +49,11 @@ class OptionalUserDependency:
 
 
 def _require_org_member_wrapper(auth: Auth, debug_mode: bool):
-    def require_org_member(user: User, required_org_id: str, minimum_required_role: str = None):
+    def require_org_member(user: User, required_org_id: str, minimum_required_role: str = None,
+                           required_permissions=None):
         try:
-            return auth.validate_org_access_and_get_org(user, required_org_id, minimum_required_role)
+            return auth.validate_org_access_and_get_org(user, required_org_id, minimum_required_role,
+                                                        required_permissions)
         except ForbiddenException as e:
             if debug_mode:
                 raise HTTPException(status_code=403, detail=e.message)
@@ -78,11 +81,12 @@ Auth = namedtuple("Auth", [
 ])
 
 
-def init_auth(auth_url: str, api_key: str, token_verification_metadata: TokenVerificationMetadata = None,
+def init_auth(auth_url: str, api_key: str, roles: List[RoleMetadata],
+              token_verification_metadata: TokenVerificationMetadata = None,
               debug_mode=False):
     """Fetches metadata required to validate access tokens and returns auth decorators and utilities"""
 
-    auth = init_base_auth(auth_url, api_key, token_verification_metadata)
+    auth = init_base_auth(auth_url, api_key, roles, token_verification_metadata)
     return Auth(
         require_user=RequiredUserDependency(auth, debug_mode),
         optional_user=OptionalUserDependency(auth),
