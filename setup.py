@@ -6,7 +6,7 @@ README = (HERE / "README.md").read_text()
 
 setup(
     name="propelauth-fastapi",
-    version="1.1.2",
+    version="1.1.3",
     description="A FastAPI library for managing authentication, backed by PropelAuth",
     long_description=README,
     long_description_content_type="text/markdown",
