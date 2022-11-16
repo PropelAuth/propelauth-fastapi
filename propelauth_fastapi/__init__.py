@@ -1,10 +1,11 @@
 from collections import namedtuple
+from typing import List
 
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from propelauth_py import TokenVerificationMetadata, init_base_auth, Auth
-from propelauth_py.errors import ForbiddenException, UnauthorizedException, UnexpectedException
-from propelauth_py.user import User, UserRole
+from propelauth_py.errors import ForbiddenException, UnauthorizedException
+from propelauth_py.user import User
 
 _security = HTTPBearer(auto_error=False)
 
@@ -48,25 +49,70 @@ class OptionalUserDependency:
 
 
 def _require_org_member_wrapper(auth: Auth, debug_mode: bool):
-    def require_org_member(user: User, required_org_id: str, minimum_required_role: UserRole = None):
+    def require_org_member(user: User, required_org_id: str):
         try:
-            return auth.validate_org_access_and_get_org(user, required_org_id, minimum_required_role)
+            return auth.validate_org_access_and_get_org(user, required_org_id)
         except ForbiddenException as e:
-            if debug_mode:
-                raise HTTPException(status_code=403, detail=e.message)
-            else:
-                raise HTTPException(status_code=403)
-        except UnexpectedException as e:
-            if debug_mode:
-                raise HTTPException(status_code=500, detail=e.message)
-            else:
-                raise HTTPException(status_code=500)
+            _handle_forbidden_exception(e, debug_mode)
 
     return require_org_member
 
 
+def _require_org_member_with_minimum_role_wrapper(auth: Auth, debug_mode: bool):
+    def require_org_member_with_minimum_role(user: User, required_org_id: str, minimum_required_role: str):
+        try:
+            return auth.validate_minimum_org_role_and_get_org(user, required_org_id, minimum_required_role)
+        except ForbiddenException as e:
+            _handle_forbidden_exception(e, debug_mode)
+
+    return require_org_member_with_minimum_role
+
+
+def _require_org_member_with_exact_role_wrapper(auth: Auth, debug_mode: bool):
+    def require_org_member_with_exact_role(user: User, required_org_id: str, role: str):
+        try:
+            return auth.validate_exact_org_role_and_get_org(user, required_org_id, role)
+        except ForbiddenException as e:
+            _handle_forbidden_exception(e, debug_mode)
+
+    return require_org_member_with_exact_role
+
+
+def _require_org_member_with_permission_wrapper(auth: Auth, debug_mode: bool):
+    def require_org_member_with_permission(user: User, required_org_id: str, permission: str):
+        try:
+            return auth.validate_permission_and_get_org(user, required_org_id, permission)
+        except ForbiddenException as e:
+            _handle_forbidden_exception(e, debug_mode)
+
+    return require_org_member_with_permission
+
+
+def _require_org_member_with_all_permissions_wrapper(auth: Auth, debug_mode: bool):
+    def require_org_member_with_all_permissions(user: User, required_org_id: str, permissions: List[str]):
+        try:
+            return auth.validate_all_permissions_and_get_org(user, required_org_id, permissions)
+        except ForbiddenException as e:
+            _handle_forbidden_exception(e, debug_mode)
+
+    return require_org_member_with_all_permissions
+
+
+def _handle_forbidden_exception(e: ForbiddenException, debug_mode: bool):
+    if debug_mode:
+        raise HTTPException(status_code=403, detail=e.message)
+    else:
+        raise HTTPException(status_code=403)
+
+
+
 Auth = namedtuple("Auth", [
-    "require_user", "optional_user", "require_org_member",
+    "require_user", "optional_user",
+    "require_org_member",
+    "require_org_member_with_minimum_role",
+    "require_org_member_with_exact_role",
+    "require_org_member_with_permission",
+    "require_org_member_with_all_permissions",
     "fetch_user_metadata_by_user_id", "fetch_user_metadata_by_email", "fetch_user_metadata_by_username",
     "fetch_batch_user_metadata_by_user_ids",
     "fetch_batch_user_metadata_by_emails",
@@ -90,6 +136,10 @@ def init_auth(auth_url: str, api_key: str, token_verification_metadata: TokenVer
         require_user=RequiredUserDependency(auth, debug_mode),
         optional_user=OptionalUserDependency(auth),
         require_org_member=_require_org_member_wrapper(auth, debug_mode),
+        require_org_member_with_minimum_role=_require_org_member_with_minimum_role_wrapper(auth, debug_mode),
+        require_org_member_with_exact_role=_require_org_member_with_exact_role_wrapper(auth, debug_mode),
+        require_org_member_with_permission=_require_org_member_with_permission_wrapper(auth, debug_mode),
+        require_org_member_with_all_permissions=_require_org_member_with_all_permissions_wrapper(auth, debug_mode),
         fetch_user_metadata_by_user_id=auth.fetch_user_metadata_by_user_id,
         fetch_user_metadata_by_email=auth.fetch_user_metadata_by_email,
         fetch_user_metadata_by_username=auth.fetch_user_metadata_by_username,
