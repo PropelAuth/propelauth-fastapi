@@ -2,3 +2,4 @@ fastapi
 propelauth-py==3.0.0b7
 pytest
 requests-mock
+httpx
