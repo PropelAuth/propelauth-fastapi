@@ -121,6 +121,7 @@ Auth = namedtuple("Auth", [
     "create_user",
     "update_user_email",
     "update_user_metadata",
+    "update_user_password",
     "create_magic_link", "migrate_user_from_external_source", "create_org", "add_user_to_org",
     "delete_user", "disable_user", "enable_user",
     "allow_org_to_setup_saml_connection", "disallow_org_to_setup_saml_connection"
@@ -153,6 +154,7 @@ def init_auth(auth_url: str, api_key: str, token_verification_metadata: TokenVer
         create_user=auth.create_user,
         update_user_email=auth.update_user_email,
         update_user_metadata=auth.update_user_metadata,
+        update_user_password=auth.update_user_password,
         create_magic_link=auth.create_magic_link,
         migrate_user_from_external_source=auth.migrate_user_from_external_source,
         create_org=auth.create_org,
