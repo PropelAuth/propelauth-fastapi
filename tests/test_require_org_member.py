@@ -213,7 +213,7 @@ def test_require_org_member_with_expired_token(app, auth, client, rsa_keys):
     access_token = create_access_token({
         "user_id": user_id,
         "org_id_to_org_member_info": org_id_to_org_member_info
-    }, rsa_keys.private_pem, expires_in=timedelta(minutes=-1))
+    }, rsa_keys.private_pem, expires_in=timedelta(minutes=-5))
 
     response = client.get(route_for(org["org_id"]), headers={"Authorization": "Bearer " + access_token})
     assert response.status_code == 401
