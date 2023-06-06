@@ -34,7 +34,7 @@ def test_optional_user_with_wrong_token(optional_user_route, client, rsa_keys):
 
 def test_optional_user_with_expired_token(optional_user_route, client, rsa_keys):
     user_id = random_user_id()
-    access_token = create_access_token({"user_id": user_id}, rsa_keys.private_pem, expires_in=timedelta(minutes=-1))
+    access_token = create_access_token({"user_id": user_id}, rsa_keys.private_pem, expires_in=timedelta(minutes=-5))
     response = client.get(optional_user_route, headers={"Authorization": "Bearer " + access_token})
     assert response.status_code == 200
     assert response.text == "none"
