@@ -113,6 +113,9 @@ Auth = namedtuple("Auth", [
     "require_org_member_with_exact_role",
     "require_org_member_with_permission",
     "require_org_member_with_all_permissions",
+
+    "validate_access_token_and_get_user",
+
     "fetch_user_metadata_by_user_id", "fetch_user_metadata_by_email", "fetch_user_metadata_by_username",
     "fetch_batch_user_metadata_by_user_ids",
     "fetch_batch_user_metadata_by_emails",
@@ -154,6 +157,7 @@ def init_auth(auth_url: str, api_key: str, token_verification_metadata: TokenVer
         require_org_member_with_exact_role=_require_org_member_with_exact_role_wrapper(auth, debug_mode),
         require_org_member_with_permission=_require_org_member_with_permission_wrapper(auth, debug_mode),
         require_org_member_with_all_permissions=_require_org_member_with_all_permissions_wrapper(auth, debug_mode),
+        validate_access_token_and_get_user=auth.validate_access_token_and_get_user,
         fetch_user_metadata_by_user_id=auth.fetch_user_metadata_by_user_id,
         fetch_user_metadata_by_email=auth.fetch_user_metadata_by_email,
         fetch_user_metadata_by_username=auth.fetch_user_metadata_by_username,
