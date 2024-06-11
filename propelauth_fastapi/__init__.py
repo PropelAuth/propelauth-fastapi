@@ -173,6 +173,9 @@ Auth = namedtuple(
         "delete_org",
         "invite_user_to_org",
         "remove_user_from_org",
+        "fetch_custom_role_mappings",
+        "subscribe_org_to_role_mapping",
+        "resend_email_confirmation",
     ],
 )
 
@@ -246,4 +249,7 @@ def init_auth(
         delete_org=auth.delete_org,
         invite_user_to_org=auth.invite_user_to_org,
         remove_user_from_org=auth.remove_user_from_org,
+        fetch_custom_role_mappings=auth.fetch_custom_role_mappings,
+        subscribe_org_to_role_mapping=auth.subscribe_org_to_role_mapping,
+        resend_email_confirmation=auth.resend_email_confirmation,
     )
