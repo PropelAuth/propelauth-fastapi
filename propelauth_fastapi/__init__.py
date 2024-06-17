@@ -176,6 +176,8 @@ Auth = namedtuple(
         "fetch_custom_role_mappings",
         "subscribe_org_to_role_mapping",
         "resend_email_confirmation",
+        "fetch_pending_invites",
+        "logout_all_user_sessions",
     ],
 )
 
@@ -252,4 +254,6 @@ def init_auth(
         fetch_custom_role_mappings=auth.fetch_custom_role_mappings,
         subscribe_org_to_role_mapping=auth.subscribe_org_to_role_mapping,
         resend_email_confirmation=auth.resend_email_confirmation,
+        fetch_pending_invites=auth.fetch_pending_invites,
+        logout_all_user_sessions=auth.logout_all_user_sessions,
     )
