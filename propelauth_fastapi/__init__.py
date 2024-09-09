@@ -119,8 +119,8 @@ def _handle_forbidden_exception(e: ForbiddenException, debug_mode: bool):
         raise HTTPException(status_code=403)
 
 
-Auth = namedtuple(
-    "Auth",
+FastAPIAuth = namedtuple(
+    "FastAPIAuth",
     [
         "require_user",
         "optional_user",
@@ -191,7 +191,7 @@ def init_auth(
     """Fetches metadata required to validate access tokens and returns auth decorators and utilities"""
 
     auth = init_base_auth(auth_url, api_key, token_verification_metadata)
-    return Auth(
+    return FastAPIAuth(
         require_user=RequiredUserDependency(auth, debug_mode),
         optional_user=OptionalUserDependency(auth),
         require_org_member=_require_org_member_wrapper(auth, debug_mode),
