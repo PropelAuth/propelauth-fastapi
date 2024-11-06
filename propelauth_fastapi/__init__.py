@@ -88,7 +88,7 @@ class FastAPIAuth:
         self.auth = init_base_auth(auth_url, integration_api_key, token_verification_metadata)
 
 
-    def require_user(self, authorization: str = Header(...)):
+    def require_user(self, authorization: str = Header(None)):
         try:
             if not authorization:
                 authorization = ""
@@ -100,7 +100,7 @@ class FastAPIAuth:
             else:
                 raise HTTPException(status_code=401)
     
-    def optional_user(self, authorization: str = Header(...)):
+    def optional_user(self, authorization: str = Header(None)):
         try:
             if not authorization:
                 return None
