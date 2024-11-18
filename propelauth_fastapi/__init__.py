@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import Depends, HTTPException, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from propelauth_py import TokenVerificationMetadata, init_base_auth, Auth
+from propelauth_py import TokenVerificationMetadata, init_base_auth, Auth, SamlIdpMetadata
 from propelauth_py.errors import ForbiddenException, UnauthorizedException
 from propelauth_py.user import User
 
@@ -174,9 +174,9 @@ class FastAPIAuth:
 
     def fetch_org_by_query(
         self, page_size: int = 10, page_number: int = 0, order_by: OrgQueryOrderBy = OrgQueryOrderBy.CREATED_AT_ASC, 
-        name: Optional[str] = None, legacy_org_id: Optional[str] = None
+        name: Optional[str] = None, legacy_org_id: Optional[str] = None, domain: Optional[str] = None
     ):
-        return self.auth.fetch_org_by_query(page_size, page_number, order_by, name, legacy_org_id)
+        return self.auth.fetch_org_by_query(page_size, page_number, order_by, name, legacy_org_id, domain)
 
     def fetch_custom_role_mappings(self):
         return self.auth.fetch_custom_role_mappings()
@@ -399,6 +399,18 @@ class FastAPIAuth:
 
     def validate_api_key(self, api_key_token: str):
         return self.auth.validate_api_key(api_key_token)
+    
+    def fetch_saml_sp_metadata(self, org_id: str):
+        return self.auth.fetch_saml_sp_metadata(org_id)
+    
+    def set_saml_idp_metadata(self, org_id: str, saml_idp_metadata: SamlIdpMetadata):
+        return self.auth.set_saml_idp_metadata(org_id=org_id, saml_idp_metadata=saml_idp_metadata)
+    
+    def saml_go_live(self, org_id: str):
+        return self.auth.saml_go_live(org_id)
+    
+    def delete_saml_connection(self, org_id: str):
+        return self.auth.delete_saml_connection(org_id)
 
 def init_auth(
     auth_url: str,
