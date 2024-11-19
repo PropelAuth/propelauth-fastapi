@@ -11,6 +11,8 @@ from propelauth_py.api import (
     UserQueryOrderBy,
 )
 
+_security = HTTPBearer(auto_error=False)
+
 def _require_org_member_wrapper(auth, debug_mode: bool):
     def require_org_member(user: User, required_org_id: str):
         try:
@@ -88,25 +90,34 @@ class FastAPIAuth:
         self.auth = init_base_auth(auth_url, integration_api_key, token_verification_metadata)
 
 
-    def require_user(self, authorization: str = Header(None)):
+    def require_user(self, credentials: HTTPAuthorizationCredentials = Depends(_security)):
         try:
-            if not authorization:
-                authorization = ""
-            user = self.auth.validate_access_token_and_get_user(authorization)
+            # Pass it in to the underlying function to get consistent error messages
+            if credentials is None:
+                authorization_header = ""
+            else:
+                authorization_header = (
+                    credentials.scheme + " " + credentials.credentials
+                )
+
+            user = self.auth.validate_access_token_and_get_user(authorization_header)
             return user
         except UnauthorizedException as e:
             if self.debug_mode:
                 raise HTTPException(status_code=401, detail=e.message)
             else:
                 raise HTTPException(status_code=401)
-    
-    def optional_user(self, authorization: str = Header(None)):
+
+
+    def optional_user(self, credentials: HTTPAuthorizationCredentials = Depends(_security)):
+        if credentials is None:
+            return None
+
         try:
-            if not authorization:
-                return None
-            user = self.auth.validate_access_token_and_get_user(authorization)
+            authorization_header = credentials.scheme + " " + credentials.credentials
+            user = self.auth.validate_access_token_and_get_user(authorization_header)
             return user
-        except UnauthorizedException as e:
+        except UnauthorizedException:
             return None
     
     def require_org_member(self, user: User, required_org_id: str):
