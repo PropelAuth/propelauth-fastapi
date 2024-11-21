@@ -89,7 +89,6 @@ class FastAPIAuth:
         self.debug_mode = debug_mode
         self.auth = init_base_auth(auth_url, integration_api_key, token_verification_metadata)
 
-
     def require_user(self, credentials: HTTPAuthorizationCredentials = Depends(_security)):
         try:
             # Pass it in to the underlying function to get consistent error messages
