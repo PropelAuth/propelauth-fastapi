@@ -170,13 +170,13 @@ class FastAPIAuth:
     def fetch_user_signup_query_params_by_user_id(self, user_id: str):
         return self.auth.fetch_user_signup_query_params_by_user_id(user_id)
 
-    def fetch_batch_user_metadata_by_user_ids(self, user_ids: list[str], include_orgs: bool = False):
+    def fetch_batch_user_metadata_by_user_ids(self, user_ids: List[str], include_orgs: bool = False):
         return self.auth.fetch_batch_user_metadata_by_user_ids(user_ids, include_orgs)
 
-    def fetch_batch_user_metadata_by_emails(self, emails: list[str], include_orgs: bool = False):
+    def fetch_batch_user_metadata_by_emails(self, emails: List[str], include_orgs: bool = False):
         return self.auth.fetch_batch_user_metadata_by_emails(emails, include_orgs)
 
-    def fetch_batch_user_metadata_by_usernames(self, usernames: list[str], include_orgs: bool = False):
+    def fetch_batch_user_metadata_by_usernames(self, usernames: List[str], include_orgs: bool = False):
         return self.auth.fetch_batch_user_metadata_by_usernames(usernames, include_orgs)
 
     def fetch_org(self, org_id: str):
@@ -215,7 +215,7 @@ class FastAPIAuth:
             password, username, first_name, last_name, properties
         )
 
-    def invite_user_to_org(self, email: str, org_id: str, role: str, additional_roles: list[str] = []):
+    def invite_user_to_org(self, email: str, org_id: str, role: str, additional_roles: List[str] = []):
         return self.auth.invite_user_to_org(email, org_id, role, additional_roles)
 
     def resend_email_confirmation(self, user_id: str):
@@ -324,13 +324,13 @@ class FastAPIAuth:
     def revoke_pending_org_invite(self, org_id: str, invitee_email: str):
         return self.auth.revoke_pending_org_invite(org_id, invitee_email)
 
-    def add_user_to_org(self, user_id: str, org_id: str, role: str, additional_roles: list[str] = []):
+    def add_user_to_org(self, user_id: str, org_id: str, role: str, additional_roles: List[str] = []):
         return self.auth.add_user_to_org(user_id, org_id, role, additional_roles)
 
     def remove_user_from_org(self, user_id: str, org_id: str):
         return self.auth.remove_user_from_org(user_id, org_id)
 
-    def change_user_role_in_org(self, user_id: str, org_id: str, role: str, additional_roles: list[str] = []):
+    def change_user_role_in_org(self, user_id: str, org_id: str, role: str, additional_roles: List[str] = []):
         return self.auth.change_user_role_in_org(user_id, org_id, role, additional_roles)
 
     def delete_user(self, user_id: str):
