@@ -208,11 +208,11 @@ class FastAPIAuth:
     def create_user(
         self, email: str, email_confirmed: bool = False, send_email_to_confirm_email_address: bool = True,
         ask_user_to_update_password_on_login: bool = False, password: Optional[str] = None, username: Optional[str] = None,
-        first_name: Optional[str] = None, last_name: Optional[str] = None, properties: Optional[Dict[str, Any]] = None
+        first_name: Optional[str] = None, last_name: Optional[str] = None, properties: Optional[Dict[str, Any]] = None, ignore_domain_restrictions: bool = False
     ):
         return self.auth.create_user(
             email, email_confirmed, send_email_to_confirm_email_address, ask_user_to_update_password_on_login,
-            password, username, first_name, last_name, properties
+            password, username, first_name, last_name, properties, ignore_domain_restrictions
         )
 
     def invite_user_to_org(self, email: str, org_id: str, role: str, additional_roles: List[str] = []):
