@@ -1,5 +1,5 @@
 fastapi
-propelauth-py
+propelauth-py=4.2.2
 pytest
 requests-mock
 httpx
