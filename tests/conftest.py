@@ -10,6 +10,9 @@ from fastapi.testclient import TestClient
 from starlette.responses import PlainTextResponse
 
 from propelauth_fastapi import init_auth, User
+from propelauth_py.api import BACKEND_API_BASE_URL as BASE_INTERNAL_API_URL
+from propelauth_py.validation import _validate_and_extract_auth_hostname
+
 
 TestRsaKeys = namedtuple("TestRsaKeys", ["public_pem", "private_pem"])
 
@@ -79,8 +82,11 @@ def optional_user_route(app, auth):
 def mock_api_and_init_auth(auth_url, status_code, json):
     with requests_mock.Mocker() as m:
         api_key = "api_key"
-        m.get(BASE_AUTH_URL + "/api/v1/token_verification_metadata",
-              request_headers={'Authorization': 'Bearer ' + api_key},
+        m.get(BASE_INTERNAL_API_URL + "/api/v1/token_verification_metadata",
+              request_headers={
+                  'Authorization': 'Bearer ' + api_key,
+                  'X-Propelauth-url': _validate_and_extract_auth_hostname(auth_url)
+              },
               json=json,
               status_code=status_code)
         return init_auth(auth_url, api_key)
