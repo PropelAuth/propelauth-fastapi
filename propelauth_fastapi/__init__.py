@@ -261,8 +261,8 @@ class FastAPIAuth:
             email, redirect_to_url, expires_in_hours, create_new_user_if_one_doesnt_exist, user_signup_query_parameters
         )
 
-    def create_access_token(self, user_id: str, duration_in_minutes: int):
-        return self.auth.create_access_token(user_id, duration_in_minutes)
+    def create_access_token(self, user_id: str, duration_in_minutes: int, active_org_id: Optional[str] = None):
+        return self.auth.create_access_token(user_id, duration_in_minutes, active_org_id)
 
     def migrate_user_from_external_source(
         self,
