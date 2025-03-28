@@ -237,9 +237,10 @@ class FastAPIAuth:
         properties: Optional[Dict[str, Any]] = None,
         picture_url: Optional[str] = None,
         update_password_required: Optional[bool] = None,
+        legacy_user_id: Optional[str] = None,
     ):
         return self.auth.update_user_metadata(
-            user_id, username, first_name, last_name, metadata, properties, picture_url, update_password_required
+            user_id, username, first_name, last_name, metadata, properties, picture_url, update_password_required, legacy_user_id
         )
 
     def clear_user_password(self, user_id: str):
@@ -309,10 +310,12 @@ class FastAPIAuth:
         can_join_on_email_domain_match: Optional[bool] = None,
         members_must_have_email_domain_match: Optional[bool] = None,
         domain: Optional[str] = None,
+        require_2fa_by: Optional[str] = None,
+        extra_domains: Optional[List[str]] = None,
     ):
         return self.auth.update_org_metadata(
             org_id, name, can_setup_saml, metadata, max_users,
-            can_join_on_email_domain_match, members_must_have_email_domain_match, domain
+            can_join_on_email_domain_match, members_must_have_email_domain_match, domain, require_2fa_by, extra_domains
         )
 
     def subscribe_org_to_role_mapping(self, org_id: str, custom_role_mapping_name: str):
