@@ -284,6 +284,13 @@ class FastAPIAuth:
             existing_mfa_base32_encoded_secret, ask_user_to_update_password_on_login,
             enabled, first_name, last_name, username, picture_url, properties
         )
+        
+    def migrate_user_password(
+        self,
+        user_id: str,
+        password_hash: str,
+    ):
+        return self.auth.migrate_user_password(user_id, password_hash)
 
     def create_org(
         self,
