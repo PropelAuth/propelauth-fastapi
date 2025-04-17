@@ -2,7 +2,14 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import Depends, HTTPException, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from propelauth_py import TokenVerificationMetadata, init_base_auth, Auth, SamlIdpMetadata
+from propelauth_py import (
+    TokenVerificationMetadata,
+    init_base_auth,
+    Auth,
+    SamlIdpMetadata,
+    StepUpMfaGrantType,
+    StepUpMfaVerifyTotpResponse,
+)
 from propelauth_py.errors import ForbiddenException, UnauthorizedException
 from propelauth_py.user import User
 
@@ -431,6 +438,21 @@ class FastAPIAuth:
     
     def delete_saml_connection(self, org_id: str):
         return self.auth.delete_saml_connection(org_id)
+
+    def verify_step_up_totp_challenge(
+        self,
+        action_type: str,
+        user_id: str,
+        code: str,
+        grant_type: StepUpMfaGrantType,
+        valid_for_seconds: int,
+    ) -> StepUpMfaVerifyTotpResponse:
+        return self.auth.verify_step_up_totp_challenge(
+            action_type, user_id, code, grant_type, valid_for_seconds
+        )
+
+    def verify_step_up_grant(self, action_type: str, user_id: str, grant: str) -> bool:
+        return self.auth.verify_step_up_grant(action_type, user_id, grant)
 
 def init_auth(
     auth_url: str,
