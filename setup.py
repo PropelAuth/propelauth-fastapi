@@ -21,7 +21,7 @@ setup(
     author="PropelAuth",
     author_email="support@propelauth.com",
     license="MIT",
-    install_requires=["propelauth-py==4.2.7", "requests"],
+    install_requires=["propelauth-py==4.2.7", "requests", "httpx>=0.28.1"],
     setup_requires=pytest_runner,
     tests_require=["pytest==4.4.1"],
     test_suite="tests",
