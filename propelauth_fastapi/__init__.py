@@ -470,7 +470,6 @@ class FastAPIAuthAsync(FastAPIAuth):
             debug_mode = debug_mode
         )
         
-        httpx_client = httpx_client
         self.is_httpx_client_provided = httpx_client is not None
         if httpx_client:
             self.httpx_client = httpx_client
