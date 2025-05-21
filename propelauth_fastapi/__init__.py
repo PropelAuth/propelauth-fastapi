@@ -470,6 +470,7 @@ class FastAPIAuthAsync(FastAPIAuth):
             debug_mode = debug_mode
         )
         
+        httpx_client = httpx_client
         self.is_httpx_client_provided = httpx_client is not None
         if httpx_client:
             self.httpx_client = httpx_client
@@ -477,7 +478,7 @@ class FastAPIAuthAsync(FastAPIAuth):
             self.httpx_client = httpx.AsyncClient()
             self.is_httpx_client_provided = False
         
-        self.auth = init_base_async_auth(auth_url, integration_api_key, token_verification_metadata)
+        self.auth = init_base_async_auth(auth_url, integration_api_key, token_verification_metadata, self.httpx_client)
         
     async def __aenter__(self):
         return self
