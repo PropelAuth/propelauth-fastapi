@@ -454,7 +454,7 @@ class FastAPIAuth:
     def verify_step_up_grant(self, action_type: str, user_id: str, grant: str) -> bool:
         return self.auth.verify_step_up_grant(action_type, user_id, grant)
     
-class FastAPIAuthAsync(FastAPIAuth):
+class FastAPIAuthAsync():
     def __init__(
         self, 
         auth_url: str, 
@@ -463,28 +463,79 @@ class FastAPIAuthAsync(FastAPIAuth):
         debug_mode: bool,
         httpx_client: Optional[httpx.AsyncClient] = None,
     ):
-        super().__init__(
-            auth_url = auth_url, 
-            integration_api_key = integration_api_key,
-            token_verification_metadata = token_verification_metadata,
-            debug_mode = debug_mode
-        )
-        
-        self.is_httpx_client_provided = httpx_client is not None
-        if httpx_client:
-            self.httpx_client = httpx_client
-        else:
-            self.httpx_client = httpx.AsyncClient()
-            self.is_httpx_client_provided = False
-        
+        self.auth_url = auth_url
+        self.integration_api_key = integration_api_key
+        self.token_verification_metadata = token_verification_metadata
+        self.debug_mode = debug_mode
+        self.httpx_client = httpx_client
         self.auth = init_base_async_auth(auth_url, integration_api_key, token_verification_metadata, self.httpx_client)
-        
-    async def __aenter__(self):
-        return self
+    
+    
+    def require_user(self, credentials: HTTPAuthorizationCredentials = Depends(_security)):
+        try:
+            # Pass it in to the underlying function to get consistent error messages
+            if credentials is None:
+                authorization_header = ""
+            else:
+                authorization_header = (
+                    credentials.scheme + " " + credentials.credentials
+                )
 
-    async def __aexit__(self, exc_type=None, exc_val=None, exc_tb=None):
-        if not self.is_httpx_client_provided:
-            await self.httpx_client.aclose()
+            user = self.auth.validate_access_token_and_get_user(authorization_header)
+            return user
+        except UnauthorizedException as e:
+            if self.debug_mode:
+                raise HTTPException(status_code=401, detail=e.message)
+            else:
+                raise HTTPException(status_code=401)
+
+
+    def optional_user(self, credentials: HTTPAuthorizationCredentials = Depends(_security)):
+        if credentials is None:
+            return None
+
+        try:
+            authorization_header = credentials.scheme + " " + credentials.credentials
+            user = self.auth.validate_access_token_and_get_user(authorization_header)
+            return user
+        except UnauthorizedException:
+            return None
+    
+    def require_org_member(self, user: User, required_org_id: str):
+        try:
+            return self.auth.validate_org_access_and_get_org(user, required_org_id)
+        except ForbiddenException as e:
+            _handle_forbidden_exception(e, self.debug_mode)
+
+    def require_org_member_with_minimum_role(self, user: User, required_org_id: str, minimum_required_role: str):
+        try:
+            return self.auth.validate_minimum_org_role_and_get_org(
+                user, required_org_id, minimum_required_role
+            )
+        except ForbiddenException as e:
+            _handle_forbidden_exception(e, self.debug_mode)
+    
+    def require_org_member_with_exact_role(self, user: User, required_org_id: str, role: str):
+        try:
+            return self.auth.validate_exact_org_role_and_get_org(user, required_org_id, role)
+        except ForbiddenException as e:
+            _handle_forbidden_exception(e, self.debug_mode)
+    
+    def require_org_member_with_permission(self, user: User, required_org_id: str, permission: str):
+        try:
+            return self.auth.validate_permission_and_get_org(
+                user, required_org_id, permission
+            )
+        except ForbiddenException as e:
+            _handle_forbidden_exception(e, self.debug_mode)
+
+    def require_org_member_with_all_permissions(self, user: User, required_org_id: str, permissions: List[str]):
+        try:
+            return self.auth.validate_all_permissions_and_get_org(
+                user, required_org_id, permissions
+            )
+        except ForbiddenException as e:
+            _handle_forbidden_exception(e, self.debug_mode)
         
     async def fetch_user_metadata_by_user_id(self, user_id: str, include_orgs: bool = False):
         return await self.auth.fetch_user_metadata_by_user_id(user_id, include_orgs)
