@@ -481,7 +481,7 @@ class FastAPIAuthAsync():
                     credentials.scheme + " " + credentials.credentials
                 )
 
-                user = self.auth.validate_access_token_and_get_user(authorization_header)
+            user = self.auth.validate_access_token_and_get_user(authorization_header)
             return user
         except UnauthorizedException as e:
             if self.debug_mode:
