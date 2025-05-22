@@ -481,7 +481,7 @@ class FastAPIAuthAsync():
                     credentials.scheme + " " + credentials.credentials
                 )
 
-            user = self.auth.validate_access_token_and_get_user(authorization_header)
+                user = self.auth.validate_access_token_and_get_user(authorization_header)
             return user
         except UnauthorizedException as e:
             if self.debug_mode:
@@ -536,6 +536,9 @@ class FastAPIAuthAsync():
             )
         except ForbiddenException as e:
             _handle_forbidden_exception(e, self.debug_mode)
+            
+    def validate_access_token_and_get_user(self, authorization_header: str) -> User:
+        return self.auth.validate_access_token_and_get_user(authorization_header=authorization_header)
         
     async def fetch_user_metadata_by_user_id(self, user_id: str, include_orgs: bool = False):
         return await self.auth.fetch_user_metadata_by_user_id(user_id, include_orgs)
