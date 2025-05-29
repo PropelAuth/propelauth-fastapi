@@ -12,7 +12,7 @@ pytest_runner = ["pytest-runner"] if needs_pytest else []
 
 setup(
     name="propelauth-fastapi",
-    version="4.2.7",
+    version="4.2.8",
     description="A FastAPI library for managing authentication, backed by PropelAuth",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -21,7 +21,7 @@ setup(
     author="PropelAuth",
     author_email="support@propelauth.com",
     license="MIT",
-    install_requires=["propelauth-py==4.2.7", "requests", "httpx>=0.28.1"],
+    install_requires=["propelauth-py==4.2.8", "requests", "httpx>=0.28.1"],
     setup_requires=pytest_runner,
     tests_require=["pytest==4.4.1"],
     test_suite="tests",
