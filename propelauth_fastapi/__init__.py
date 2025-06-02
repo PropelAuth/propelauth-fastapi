@@ -4,6 +4,7 @@ from fastapi import Depends, HTTPException, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from propelauth_py import (
     TokenVerificationMetadata,
+    configure_logging,
     init_base_auth,
     init_base_async_auth,
     SamlIdpMetadata,
@@ -833,8 +834,11 @@ def init_auth(
     auth_url: str,
     api_key: str,
     token_verification_metadata: Optional[TokenVerificationMetadata] = None,
-    debug_mode=False,
+    debug_mode: bool = False,
+    log_exceptions: bool = False,
 ) -> FastAPIAuth:
+    configure_logging(log_exceptions)
+
     """Fetches metadata required to validate access tokens and returns auth decorators and utilities"""
     return FastAPIAuth(auth_url=auth_url, integration_api_key=api_key, token_verification_metadata=token_verification_metadata, debug_mode=debug_mode)
 
@@ -844,7 +848,10 @@ def init_auth_async(
     token_verification_metadata: Optional[TokenVerificationMetadata] = None,
     debug_mode=False,
     httpx_client: Optional[httpx.AsyncClient] = None,
+    log_exceptions: bool = False,
 ) -> FastAPIAuthAsync:
+    configure_logging(log_exceptions)
+
     """Fetches metadata required to validate access tokens and returns auth decorators and utilities"""
     return FastAPIAuthAsync(auth_url=auth_url, integration_api_key=api_key, token_verification_metadata=token_verification_metadata, debug_mode=debug_mode, httpx_client=httpx_client)
     
