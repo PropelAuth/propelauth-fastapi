@@ -261,12 +261,13 @@ class FastAPIAuth:
         self,
         email: str,
         redirect_to_url: Optional[str] = None,
-        expires_in_hours: Optional[str] = None,
+        expires_in_hours: Optional[int] = None,
         create_new_user_if_one_doesnt_exist: Optional[bool] = None,
         user_signup_query_parameters: Optional[Dict[str, Any]] = None,
+        expire_after_first_use: Optional[bool] = None
     ):
         return self.auth.create_magic_link(
-            email, redirect_to_url, expires_in_hours, create_new_user_if_one_doesnt_exist, user_signup_query_parameters
+            email, redirect_to_url, expires_in_hours, create_new_user_if_one_doesnt_exist, user_signup_query_parameters, expire_after_first_use
         )
 
     def create_access_token(self, user_id: str, duration_in_minutes: int, active_org_id: Optional[str] = None):
@@ -413,8 +414,8 @@ class FastAPIAuth:
     ):
         return self.auth.create_api_key(org_id, user_id, expires_at_seconds, metadata)
 
-    def update_api_key(self, api_key_id: str, expires_at_seconds: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None):
-        return self.auth.update_api_key(api_key_id, expires_at_seconds, metadata)
+    def update_api_key(self, api_key_id: str, expires_at_seconds: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None, set_to_never_expire: Optional[bool] = None):
+        return self.auth.update_api_key(api_key_id, expires_at_seconds, metadata, set_to_never_expire)
 
     def delete_api_key(self, api_key_id: str):
         return self.auth.delete_api_key(api_key_id)
@@ -454,6 +455,80 @@ class FastAPIAuth:
 
     def verify_step_up_grant(self, action_type: str, user_id: str, grant: str) -> bool:
         return self.auth.verify_step_up_grant(action_type, user_id, grant)
+    
+    def fetch_user_mfa_methods(self, user_id: str):
+        return self.auth.fetch_user_mfa_methods(user_id)
+    
+    def invite_user_to_org_by_user_id(
+        self, user_id: str, org_id: str, role: str, additional_roles: List[str] = []
+    ):
+        return self.auth.invite_user_to_org_by_user_id(
+            user_id,
+            org_id,
+            role,
+            additional_roles,
+        )
+        
+    def validate_imported_api_key(self, api_key_token: str):
+        return self.auth.validate_imported_api_key(api_key_token)
+    
+    def fetch_api_key_usage(
+        self, 
+        date: str, 
+        org_id: Optional[str] = None, 
+        user_id: Optional[str] = None, 
+        api_key_id: Optional[str] = None
+    ):
+        return self.auth.fetch_api_key_usage(
+            date, org_id, user_id, api_key_id
+        )
+        
+    def import_api_key(
+        self,
+        api_key_token: str,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        expires_at_seconds: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ):
+        return self.auth.import_api_key(
+            api_key_token,
+            org_id,
+            user_id,
+            expires_at_seconds,
+            metadata,
+        )
+        
+    def send_sms_mfa_code(
+        self, 
+        action_type: str,
+        user_id: str,
+        mfa_phone_id: str,
+        grant_type: StepUpMfaGrantType,
+        valid_for_seconds: int,
+    ):
+        return self.auth.send_sms_mfa_code(
+            action_type,
+            user_id,
+            mfa_phone_id,
+            grant_type,
+            valid_for_seconds
+        )
+        
+    def verify_sms_challenge(
+        self, 
+        challenge_id: str,
+        user_id: str,
+        code: str,
+    ):
+        return self.auth.verify_sms_challenge(
+            challenge_id,
+            user_id,
+            code
+        )
+        
+    def fetch_employee_by_id(self, employee_id: str):
+        return self.auth.fetch_employee_by_id(employee_id)
     
 class FastAPIAuthAsync():
     def __init__(
@@ -636,12 +711,13 @@ class FastAPIAuthAsync():
         self,
         email: str,
         redirect_to_url: Optional[str] = None,
-        expires_in_hours: Optional[str] = None,
+        expires_in_hours: Optional[int] = None,
         create_new_user_if_one_doesnt_exist: Optional[bool] = None,
         user_signup_query_parameters: Optional[Dict[str, Any]] = None,
+        expire_after_first_use: Optional[bool] = None
     ):
         return await self.auth.create_magic_link(
-            email, redirect_to_url, expires_in_hours, create_new_user_if_one_doesnt_exist, user_signup_query_parameters
+            email, redirect_to_url, expires_in_hours, create_new_user_if_one_doesnt_exist, user_signup_query_parameters, expire_after_first_use
         )
 
     async def create_access_token(self, user_id: str, duration_in_minutes: int, active_org_id: Optional[str] = None):
@@ -788,8 +864,8 @@ class FastAPIAuthAsync():
     ):
         return await self.auth.create_api_key(org_id, user_id, expires_at_seconds, metadata)
 
-    async def update_api_key(self, api_key_id: str, expires_at_seconds: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None):
-        return await self.auth.update_api_key(api_key_id, expires_at_seconds, metadata)
+    async def update_api_key(self, api_key_id: str, expires_at_seconds: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None, set_to_never_expire: Optional[bool] = None):
+        return await self.auth.update_api_key(api_key_id, expires_at_seconds, metadata, set_to_never_expire)
 
     async def delete_api_key(self, api_key_id: str):
         return await self.auth.delete_api_key(api_key_id)
@@ -829,6 +905,94 @@ class FastAPIAuthAsync():
 
     async def verify_step_up_grant(self, action_type: str, user_id: str, grant: str) -> bool:
         return await self.auth.verify_step_up_grant(action_type, user_id, grant)
+    
+    async def validate_imported_api_key(self, api_key_token: str):
+        return await self.auth.validate_imported_api_key(
+            api_key_token=api_key_token
+        )
+        
+    async def fetch_api_key_usage(
+        self, 
+        date: str, 
+        org_id: Optional[str] = None, 
+        user_id: Optional[str] = None, 
+        api_key_id: Optional[str] = None
+    ):
+        return await self.auth.fetch_api_key_usage(
+            date, 
+            org_id, 
+            user_id, 
+            api_key_id
+        )
+        
+    async def import_api_key(
+        self,
+        api_key_token: str,
+        org_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        expires_at_seconds: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ):
+        return await self.auth.import_api_key(
+            api_key_token,
+            org_id,
+            user_id,
+            expires_at_seconds,
+            metadata,
+        )
+        
+    async def invite_user_to_org_by_user_id(
+        self, 
+        user_id: str, 
+        org_id: str, 
+        role: str, 
+        additional_roles: List[str] = []
+    ):
+        return await self.auth.invite_user_to_org_by_user_id(
+            user_id,
+            org_id,
+            role,
+            additional_roles,
+        )
+        
+    async def fetch_user_mfa_methods(self, user_id: str):
+        return await self.auth.fetch_user_mfa_methods(
+            user_id,
+        )
+        
+    async def send_sms_mfa_code(
+        self, 
+        action_type: str,
+        user_id: str,
+        mfa_phone_id: str,
+        grant_type: StepUpMfaGrantType,
+        valid_for_seconds: int,
+    ):
+        return await self.auth.send_sms_mfa_code(
+            action_type,
+            user_id,
+            mfa_phone_id,
+            grant_type,
+            valid_for_seconds
+        )
+        
+    async def verify_sms_challenge(
+        self, 
+        challenge_id: str,
+        user_id: str,
+        code: str,
+    ):
+        return await self.auth.verify_sms_challenge(
+            challenge_id,
+            user_id,
+            code
+        )
+        
+    async def fetch_employee_by_id(self, employee_id: str):
+        return await self.auth.fetch_employee_by_id(
+            employee_id
+        )
+
 
 def init_auth(
     auth_url: str,
