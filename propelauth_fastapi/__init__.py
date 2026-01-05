@@ -205,9 +205,9 @@ class FastAPIAuth:
 
     def fetch_users_by_query(
         self, page_size: int = 10, page_number: int = 0, order_by: UserQueryOrderBy = UserQueryOrderBy.CREATED_AT_ASC,
-        email_or_username: Optional[str] = None, include_orgs: bool = False, legacy_user_id: Optional[str] = None, isolated_org_id: Optional[str] = None
+        email_or_username: Optional[str] = None, include_orgs: bool = False, legacy_user_id: Optional[str] = None
     ):
-        return self.auth.fetch_users_by_query(page_size, page_number, order_by, email_or_username, include_orgs, legacy_user_id, isolated_org_id)
+        return self.auth.fetch_users_by_query(page_size, page_number, order_by, email_or_username, include_orgs, legacy_user_id)
 
     def fetch_users_in_org(
         self, org_id: str, page_size: int = 10, page_number: int = 0, include_orgs: bool = False, role: Optional[str] = None
@@ -659,9 +659,9 @@ class FastAPIAuthAsync():
 
     async def fetch_users_by_query(
         self, page_size: int = 10, page_number: int = 0, order_by: UserQueryOrderBy = UserQueryOrderBy.CREATED_AT_ASC,
-        email_or_username: Optional[str] = None, include_orgs: bool = False, legacy_user_id: Optional[str] = None, isolated_org_id: Optional[str] = None
+        email_or_username: Optional[str] = None, include_orgs: bool = False, legacy_user_id: Optional[str] = None
     ):
-        return await self.auth.fetch_users_by_query(page_size, page_number, order_by, email_or_username, include_orgs, legacy_user_id, isolated_org_id)
+        return await self.auth.fetch_users_by_query(page_size, page_number, order_by, email_or_username, include_orgs, legacy_user_id)
 
     async def fetch_users_in_org(
         self, org_id: str, page_size: int = 10, page_number: int = 0, include_orgs: bool = False, role: Optional[str] = None
@@ -1027,4 +1027,3 @@ def init_auth_async(
 
     """Fetches metadata required to validate access tokens and returns auth decorators and utilities"""
     return FastAPIAuthAsync(auth_url=auth_url, integration_api_key=api_key, token_verification_metadata=token_verification_metadata, debug_mode=debug_mode, httpx_client=httpx_client)
-    
