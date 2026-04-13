@@ -23,6 +23,6 @@ setup(
     license="MIT",
     install_requires=["propelauth-py==4.3.2", "requests", "httpx>=0.28.1"],
     setup_requires=pytest_runner,
-    tests_require=["pytest==4.4.1"],
+    tests_require=["pytest==9.0.3"],
     test_suite="tests",
 )
