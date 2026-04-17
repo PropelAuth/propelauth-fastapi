@@ -550,8 +550,19 @@ class FastAPIAuth:
             page_number
     )
     
-    def fetch_scim_group(self, org_id: str, group_id: str):
-        return self.auth.fetch_scim_group(org_id, group_id)
+    def fetch_scim_group(
+        self, 
+        org_id: str,
+        group_id: str,
+        members_page_size: int = 10,
+        members_page_number: int = 0,
+    ):
+        return self.auth.fetch_scim_group(
+            org_id=org_id,
+            group_id=group_id,
+            members_page_size=members_page_size,
+            members_page_number=members_page_number,
+        )
         
     def fetch_user_oauth_tokens(self, user_id: str):
         return self.auth.fetch_user_oauth_tokens(user_id)
@@ -969,6 +980,7 @@ class FastAPIAuthAsync():
         user_id: Optional[str] = None,
         expires_at_seconds: Optional[str] = None,
         metadata: Optional[Dict[str, Any]] = None,
+        display_name: Optional[str] = None,
     ):
         return await self.auth.import_api_key(
             api_key_token,
@@ -976,6 +988,7 @@ class FastAPIAuthAsync():
             user_id,
             expires_at_seconds,
             metadata,
+            display_name
         )
         
     async def invite_user_to_org_by_user_id(
@@ -1038,8 +1051,19 @@ class FastAPIAuthAsync():
             page_number
     )
     
-    async def fetch_scim_group(self, org_id: str, group_id: str):
-        return await self.auth.fetch_scim_group(org_id, group_id)
+    async def fetch_scim_group(
+        self, 
+        org_id: str,
+        group_id: str,
+        members_page_size: int = 10,
+        members_page_number: int = 0,
+    ):
+        return await self.auth.fetch_scim_group(
+            org_id=org_id,
+            group_id=group_id,
+            members_page_size=members_page_size,
+            members_page_number=members_page_number,
+        )
         
     async def fetch_user_oauth_tokens(self, user_id: str):
         return await self.auth.fetch_user_oauth_tokens(user_id)
