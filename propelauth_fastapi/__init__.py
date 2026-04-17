@@ -3,6 +3,8 @@ from typing import Any, Dict, List, Optional
 from fastapi import Depends, HTTPException, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from propelauth_py import (
+    SetOidcIdpMetadataRequest,
+    SocialLoginTokenProvider,
     TokenVerificationMetadata,
     configure_logging,
     init_base_auth,
@@ -264,10 +266,11 @@ class FastAPIAuth:
         expires_in_hours: Optional[int] = None,
         create_new_user_if_one_doesnt_exist: Optional[bool] = None,
         user_signup_query_parameters: Optional[Dict[str, Any]] = None,
-        expire_after_first_use: Optional[bool] = None
+        expire_after_first_use: Optional[bool] = None,
+        requires_interstitial: Optional[bool] = None,
     ):
         return self.auth.create_magic_link(
-            email, redirect_to_url, expires_in_hours, create_new_user_if_one_doesnt_exist, user_signup_query_parameters, expire_after_first_use
+            email, redirect_to_url, expires_in_hours, create_new_user_if_one_doesnt_exist, user_signup_query_parameters, expire_after_first_use, requires_interstitial
         )
 
     def create_access_token(self, user_id: str, duration_in_minutes: int, active_org_id: Optional[str] = None):
@@ -328,10 +331,13 @@ class FastAPIAuth:
         domain: Optional[str] = None,
         require_2fa_by: Optional[str] = None,
         extra_domains: Optional[List[str]] = None,
+        password_rotation_enabled: Optional[bool] = None,
+        password_rotation_history_size: Optional[int] = None,
+        password_rotation_period: Optional[int] = None,
     ):
         return self.auth.update_org_metadata(
             org_id, name, can_setup_saml, metadata, max_users,
-            can_join_on_email_domain_match, members_must_have_email_domain_match, domain, require_2fa_by, extra_domains
+            can_join_on_email_domain_match, members_must_have_email_domain_match, domain, require_2fa_by, extra_domains, password_rotation_enabled, password_rotation_history_size, password_rotation_period
         )
 
     def subscribe_org_to_role_mapping(self, org_id: str, custom_role_mapping_name: str):
@@ -410,9 +416,10 @@ class FastAPIAuth:
         org_id: Optional[str] = None,
         user_id: Optional[str] = None,
         expires_at_seconds: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
+        display_name: Optional[str] = None,
     ):
-        return self.auth.create_api_key(org_id, user_id, expires_at_seconds, metadata)
+        return self.auth.create_api_key(org_id, user_id, expires_at_seconds, metadata, display_name)
 
     def update_api_key(self, api_key_id: str, expires_at_seconds: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None, set_to_never_expire: Optional[bool] = None):
         return self.auth.update_api_key(api_key_id, expires_at_seconds, metadata, set_to_never_expire)
@@ -434,6 +441,9 @@ class FastAPIAuth:
     
     def set_saml_idp_metadata(self, org_id: str, saml_idp_metadata: SamlIdpMetadata):
         return self.auth.set_saml_idp_metadata(org_id=org_id, saml_idp_metadata=saml_idp_metadata)
+        
+    def set_oidc_idp_metadata(self, request: SetOidcIdpMetadataRequest):
+        return self.auth.set_oidc_idp_metadata(request)
     
     def saml_go_live(self, org_id: str):
         return self.auth.saml_go_live(org_id)
@@ -490,6 +500,7 @@ class FastAPIAuth:
         user_id: Optional[str] = None,
         expires_at_seconds: Optional[str] = None,
         metadata: Optional[Dict[str, Any]] = None,
+        display_name: Optional[str] = None,
     ):
         return self.auth.import_api_key(
             api_key_token,
@@ -497,6 +508,7 @@ class FastAPIAuth:
             user_id,
             expires_at_seconds,
             metadata,
+            display_name,
         )
         
     def send_sms_mfa_code(
@@ -529,6 +541,23 @@ class FastAPIAuth:
         
     def fetch_employee_by_id(self, employee_id: str):
         return self.auth.fetch_employee_by_id(employee_id)
+        
+    def fetch_org_scim_groups(self, org_id: str, user_id: Optional[str] = None, page_size: int = 10, page_number: int = 0):
+        return self.auth.fetch_org_scim_groups(
+            org_id,
+            user_id,
+            page_size,
+            page_number
+    )
+    
+    def fetch_scim_group(self, org_id: str, group_id: str):
+        return self.auth.fetch_scim_group(org_id, group_id)
+        
+    def fetch_user_oauth_tokens(self, user_id: str):
+        return self.auth.fetch_user_oauth_tokens(user_id)
+    
+    def fetch_fresh_token_from_provider(self, user_id: str, provider: SocialLoginTokenProvider):
+        return self.auth.fetch_fresh_token_from_provider(user_id, provider)
     
 class FastAPIAuthAsync():
     def __init__(
@@ -714,10 +743,11 @@ class FastAPIAuthAsync():
         expires_in_hours: Optional[int] = None,
         create_new_user_if_one_doesnt_exist: Optional[bool] = None,
         user_signup_query_parameters: Optional[Dict[str, Any]] = None,
-        expire_after_first_use: Optional[bool] = None
+        expire_after_first_use: Optional[bool] = None,
+        requires_interstitial: Optional[bool] = None,
     ):
         return await self.auth.create_magic_link(
-            email, redirect_to_url, expires_in_hours, create_new_user_if_one_doesnt_exist, user_signup_query_parameters, expire_after_first_use
+            email, redirect_to_url, expires_in_hours, create_new_user_if_one_doesnt_exist, user_signup_query_parameters, expire_after_first_use, requires_interstitial
         )
 
     async def create_access_token(self, user_id: str, duration_in_minutes: int, active_org_id: Optional[str] = None):
@@ -778,10 +808,13 @@ class FastAPIAuthAsync():
         domain: Optional[str] = None,
         require_2fa_by: Optional[str] = None,
         extra_domains: Optional[List[str]] = None,
+        password_rotation_enabled: Optional[bool] = None,
+        password_rotation_history_size: Optional[int] = None,
+        password_rotation_period: Optional[int] = None,
     ):
         return await self.auth.update_org_metadata(
             org_id, name, can_setup_saml, metadata, max_users,
-            can_join_on_email_domain_match, members_must_have_email_domain_match, domain, require_2fa_by, extra_domains
+            can_join_on_email_domain_match, members_must_have_email_domain_match, domain, require_2fa_by, extra_domains, password_rotation_enabled, password_rotation_history_size, password_rotation_period
         )
 
     async def subscribe_org_to_role_mapping(self, org_id: str, custom_role_mapping_name: str):
@@ -860,9 +893,10 @@ class FastAPIAuthAsync():
         org_id: Optional[str] = None,
         user_id: Optional[str] = None,
         expires_at_seconds: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
+        display_name: Optional[str] = None,
     ):
-        return await self.auth.create_api_key(org_id, user_id, expires_at_seconds, metadata)
+        return await self.auth.create_api_key(org_id, user_id, expires_at_seconds, metadata, display_name)
 
     async def update_api_key(self, api_key_id: str, expires_at_seconds: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None, set_to_never_expire: Optional[bool] = None):
         return await self.auth.update_api_key(api_key_id, expires_at_seconds, metadata, set_to_never_expire)
@@ -884,6 +918,9 @@ class FastAPIAuthAsync():
     
     async def set_saml_idp_metadata(self, org_id: str, saml_idp_metadata: SamlIdpMetadata):
         return await self.auth.set_saml_idp_metadata(org_id=org_id, saml_idp_metadata=saml_idp_metadata)
+        
+    async def set_oidc_idp_metadata(self, request: SetOidcIdpMetadataRequest):
+        return await self.auth.set_oidc_idp_metadata(request)
     
     async def saml_go_live(self, org_id: str):
         return await self.auth.saml_go_live(org_id)
@@ -992,6 +1029,23 @@ class FastAPIAuthAsync():
         return await self.auth.fetch_employee_by_id(
             employee_id
         )
+        
+    async def fetch_org_scim_groups(self, org_id: str, user_id: Optional[str] = None, page_size: int = 10, page_number: int = 0):
+        return await self.auth.fetch_org_scim_groups(
+            org_id,
+            user_id,
+            page_size,
+            page_number
+    )
+    
+    async def fetch_scim_group(self, org_id: str, group_id: str):
+        return await self.auth.fetch_scim_group(org_id, group_id)
+        
+    async def fetch_user_oauth_tokens(self, user_id: str):
+        return await self.auth.fetch_user_oauth_tokens(user_id)
+        
+    async def fetch_fresh_token_from_provider(self, user_id: str, provider: SocialLoginTokenProvider):
+        return await self.auth.fetch_fresh_token_from_provider(user_id, provider)
 
 
 def init_auth(
@@ -1018,4 +1072,3 @@ def init_auth_async(
 
     """Fetches metadata required to validate access tokens and returns auth decorators and utilities"""
     return FastAPIAuthAsync(auth_url=auth_url, integration_api_key=api_key, token_verification_metadata=token_verification_metadata, debug_mode=debug_mode, httpx_client=httpx_client)
-    

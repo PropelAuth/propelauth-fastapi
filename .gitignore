@@ -394,3 +394,6 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python,venv,virtualenv,pycharm+all,vim,emacs,macos,windows
 
+pyproject.toml
+uv.lock
+.python-version
