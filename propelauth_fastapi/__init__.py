@@ -1,7 +1,9 @@
 import httpx
+from datetime import date
 from typing import Any, Dict, List, Optional
 from fastapi import Depends, HTTPException, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
 from propelauth_py import (
     SetOidcIdpMetadataRequest,
     SocialLoginTokenProvider,
@@ -15,7 +17,21 @@ from propelauth_py import (
 )
 from propelauth_py.errors import ForbiddenException, UnauthorizedException
 from propelauth_py.user import User
-
+from propelauth_py.types.user_insights import (
+    ChartMetric,
+    ChartMetricCadence,
+    ChartData,
+    TopInviterReportInterval,
+    ChampionReportInterval,
+    ChurnReportInterval,
+    ReengagementReportInterval,
+    GrowthReportInterval,
+    AttritionReportInterval,
+    OrgReport,
+    OrgReportType,
+    UserReport,
+    UserReportType,
+)
 from propelauth_py.api import (
     OrgQueryOrderBy,
     UserQueryOrderBy,
@@ -539,6 +555,131 @@ class FastAPIAuth:
             code
         )
         
+    # User Insights Reports APIs
+    
+    def fetch_user_top_inviter_report(
+        self,
+        report_interval: Optional[TopInviterReportInterval] = None,
+        page_size: Optional[int] = None,
+        page_number: Optional[int] = None,
+    ) -> UserReport:
+        return self.auth.fetch_user_report(
+            UserReportType.TOP_INVITERS,
+            report_interval,
+            page_size,
+            page_number
+        )
+        
+    def fetch_user_champion_report(
+        self,
+        report_interval: Optional[ChampionReportInterval] = None,
+        page_size: Optional[int] = None,
+        page_number: Optional[int] = None,
+    ) -> UserReport:
+        return self.auth.fetch_user_report(
+            UserReportType.CHAMPION,
+            report_interval,
+            page_size,
+            page_number
+        )
+        
+    def fetch_user_churn_report(
+        self,
+        report_interval: Optional[ChurnReportInterval] = None,
+        page_size: Optional[int] = None,
+        page_number: Optional[int] = None,
+    ) -> UserReport:
+        return self.auth.fetch_user_report(
+            UserReportType.CHURN,
+            report_interval,
+            page_size,
+            page_number
+        )
+        
+        
+    def fetch_user_reengagement_report(
+        self,
+        report_interval: Optional[ReengagementReportInterval] = None,
+        page_size: Optional[int] = None,
+        page_number: Optional[int] = None,
+    ) -> UserReport:
+        return self.auth.fetch_user_report(
+            UserReportType.REENGAGEMENT,
+            report_interval,
+            page_size,
+            page_number
+        )
+        
+        
+    def fetch_org_churn_report(
+        self,
+        report_interval: Optional[ChurnReportInterval] = None,
+        page_size: Optional[int] = None,
+        page_number: Optional[int] = None,
+    ) -> OrgReport:
+        return self.auth.fetch_org_report(
+            OrgReportType.CHURN,
+            report_interval,
+            page_size,
+            page_number
+        )
+        
+    def fetch_org_reengagement_report(
+        self,
+        report_interval: Optional[ReengagementReportInterval] = None,
+        page_size: Optional[int] = None,
+        page_number: Optional[int] = None,
+    ) -> OrgReport:
+        return self.auth.fetch_org_report(
+            OrgReportType.REENGAGEMENT,
+            report_interval,
+            page_size,
+            page_number
+        )
+        
+        
+    def fetch_org_growth_report(
+        self,
+        report_interval: Optional[GrowthReportInterval] = None,
+        page_size: Optional[int] = None,
+        page_number: Optional[int] = None,
+    ) -> OrgReport:
+        return self.auth.fetch_org_report(
+            OrgReportType.GROWTH,
+            report_interval,
+            page_size,
+            page_number
+        )
+        
+        
+    def fetch_org_attrition_report(
+        self,
+        report_interval: Optional[AttritionReportInterval] = None,
+        page_size: Optional[int] = None,
+        page_number: Optional[int] = None,
+    ) -> OrgReport:
+        return self.auth.fetch_org_report(
+            OrgReportType.ATTRITION,
+            report_interval,
+            page_size,
+            page_number
+        )
+    
+    def fetch_chart_metric_data(
+        self,
+        chart_metric: ChartMetric,
+        cadence: Optional[ChartMetricCadence] = None,
+        start_date: Optional[date] = None,
+        end_date: Optional[date] = None,
+    ) -> ChartData:
+        return self.auth.fetch_chart_metric_data(
+            chart_metric,
+            cadence,
+            start_date,
+            end_date
+        )
+        
+
     def fetch_employee_by_id(self, employee_id: str):
         return self.auth.fetch_employee_by_id(employee_id)
         
@@ -1037,7 +1178,131 @@ class FastAPIAuthAsync():
             user_id,
             code
         )
+
+    # User Insights Reports APIs
+    
+    async def fetch_user_top_inviter_report(
+        self,
+        report_interval: Optional[TopInviterReportInterval] = None,
+        page_size: Optional[int] = None,
+        page_number: Optional[int] = None,
+    ) -> UserReport:
+        return await self.auth.fetch_user_report_async(
+            UserReportType.TOP_INVITERS,
+            report_interval,
+            page_size,
+            page_number
+        )
         
+    async def fetch_user_champion_report(
+        self,
+        report_interval: Optional[ChampionReportInterval] = None,
+        page_size: Optional[int] = None,
+        page_number: Optional[int] = None,
+    ) -> UserReport:
+        return await self.auth.fetch_user_report_async(
+            UserReportType.CHAMPION,
+            report_interval,
+            page_size,
+            page_number
+        )
+        
+    async def fetch_user_churn_report(
+        self,
+        report_interval: Optional[ChurnReportInterval] = None,
+        page_size: Optional[int] = None,
+        page_number: Optional[int] = None,
+    ) -> UserReport:
+        return await self.auth.fetch_user_report_async(
+            UserReportType.CHURN,
+            report_interval,
+            page_size,
+            page_number
+        )
+        
+        
+    async def fetch_user_reengagement_report(
+        self,
+        report_interval: Optional[ReengagementReportInterval] = None,
+        page_size: Optional[int] = None,
+        page_number: Optional[int] = None,
+    ) -> UserReport:
+        return await self.auth.fetch_user_report_async(
+            UserReportType.REENGAGEMENT,
+            report_interval,
+            page_size,
+            page_number
+        )
+        
+        
+    async def fetch_org_churn_report(
+        self,
+        report_interval: Optional[ChurnReportInterval] = None,
+        page_size: Optional[int] = None,
+        page_number: Optional[int] = None,
+    ) -> OrgReport:
+        return await self.auth.fetch_org_report_async(
+            OrgReportType.CHURN,
+            report_interval,
+            page_size,
+            page_number
+        )
+        
+    async def fetch_org_reengagement_report(
+        self,
+        report_interval: Optional[ReengagementReportInterval] = None,
+        page_size: Optional[int] = None,
+        page_number: Optional[int] = None,
+    ) -> OrgReport:
+        return await self.auth.fetch_org_report_async(
+            OrgReportType.REENGAGEMENT,
+            report_interval,
+            page_size,
+            page_number
+        )
+        
+        
+    async def fetch_org_growth_report(
+        self,
+        report_interval: Optional[GrowthReportInterval] = None,
+        page_size: Optional[int] = None,
+        page_number: Optional[int] = None,
+    ) -> OrgReport:
+        return await self.auth.fetch_org_report_async(
+            OrgReportType.GROWTH,
+            report_interval,
+            page_size,
+            page_number
+        )
+        
+        
+    async def fetch_org_attrition_report(
+        self,
+        report_interval: Optional[AttritionReportInterval] = None,
+        page_size: Optional[int] = None,
+        page_number: Optional[int] = None,
+    ) -> OrgReport:
+        return await self.auth.fetch_org_report_async(
+            OrgReportType.ATTRITION,
+            report_interval,
+            page_size,
+            page_number
+        )
+    
+    async def fetch_chart_metric_data(
+        self,
+        chart_metric: ChartMetric,
+        cadence: Optional[ChartMetricCadence] = None,
+        start_date: Optional[date] = None,
+        end_date: Optional[date] = None,
+    ) -> ChartData:
+        return await self.auth.fetch_chart_metric_data_async(
+            chart_metric,
+            cadence,
+            start_date,
+            end_date
+        )
+
     async def fetch_employee_by_id(self, employee_id: str):
         return await self.auth.fetch_employee_by_id(
             employee_id
