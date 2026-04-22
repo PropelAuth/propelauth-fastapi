@@ -1,29 +1,40 @@
 name: Publish
+
 on:
   release:
-    types: [created]
+    types: [published]
+
 jobs:
-  build-n-publish:
-    name: Build and publish
+  build:
+    name: Build distribution
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-    - uses: actions/checkout@master
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.9
-    - name: Install pypa/propelauth_fastapi
-      run: >-
-        python -m
-        pip install -r requirements.txt
-        --user
-    - name: Run tests
-      run: python -m pytest
+      - uses: actions/checkout@v6.0.0
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+      - run: uv run pytest
+      - run: uv build
+      - uses: actions/upload-artifact@v7.0.1
+        with:
+          name: python-package-distributions
+          path: dist/
+          if-no-files-found: error
 
-    - name: Build a binary wheel and a source tarball
-      run: python setup.py sdist
-
-    - name: Publish distribution 📦 to Test PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        password: ${{ secrets.PYPI_API_TOKEN }}
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8.0.1
+        with:
+          name: python-package-distributions
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@v1.14.0
